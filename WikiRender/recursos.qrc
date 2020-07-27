@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>recursos/jquery-latest.js</file>
+        <file>recursos/default.html</file>
+        <file>recursos/monobook.js</file>
+        <file>recursos/sample.wiki</file>
+    </qresource>
+</RCC>

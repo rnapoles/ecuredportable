@@ -1,0 +1,241 @@
+    static unsigned int init=0;
+    if(init==0){
+        init++;
+
+
+        WidgetListaContainer = new QWidget(this);
+        //WidgetListaContainer->resize(5,5);
+        VBoxLayoutLista = new QVBoxLayout();
+
+        splitter = new QSplitter(this);
+
+        EditBuscarEnLista = new QLineEdit(WidgetListaContainer);
+        EditBuscarEnLista->setFixedHeight(20);
+
+        connect(EditBuscarEnLista,SIGNAL(textEdited(QString)),this,SLOT(EditBuscarEnLista_textEdited(QString)));
+
+        //Lista = new QListWidget(WidgetListaContainer);
+        Lista = new QListView(WidgetListaContainer);
+        Lista->setContextMenuPolicy(Qt::CustomContextMenu);
+        Lista->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ListaItemText.clear();
+        ListaItemId = -1;
+        WidgetListaContainer->hide();
+        //connect(Lista,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(Lista_doubleClicked(QListWidgetItem*)));
+        connect(Lista,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(Lista_doubleClicked(QModelIndex)));
+        connect(Lista,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(contextMenuRequested(QPoint)));
+
+        VBoxLayoutLista->addWidget(EditBuscarEnLista);
+        VBoxLayoutLista->addWidget(Lista);
+        WidgetListaContainer->setLayout(VBoxLayoutLista);
+
+        splitter->addWidget(WidgetListaContainer);
+        splitter->addWidget(ui->tabWidget);
+
+
+        ui->verticalLayout->addWidget(splitter);
+        EditBuscar->setFocus();
+
+        proxyModel.setSourceModel(&ItemsModel);
+        Lista->setModel(&proxyModel);
+
+        /*if(this->IsSourceDocAvailable){
+            QStringList TabList = settings->value("TabList").toStringList();
+            int CantTabs= TabList.size();
+
+            for (int i = 0; i < CantTabs; ++i){
+                CreateTab(TabList.at(i),true);
+            }
+            if(CantTabs==0) CreateTab(BlankPage,true);
+        } else {
+            //setup tabbar
+            CreateTab(BlankPage,true);
+        }*/
+
+        //setup tabbar
+        CreateTab(AppInfo,true);
+
+        QList<QTabBar *> Lista_widgets = ui->tabWidget->findChildren<QTabBar *>(); //obtenemos todos los QWebView en un QList
+        int cant_widgets = Lista_widgets.count();
+        if(cant_widgets > 0){
+            TabBar = Lista_widgets.at(0);
+            animationLabel(0,true);
+        } else {
+            TabBar = NULL;
+        }
+
+    }
+    
+---------------------
+    ui->setupUi(this);
+    timer = NULL;
+    EnableUseFullMatch = false;
+    showTextResult = false;
+    SecondSearch = false;
+    p_IsSourceDocAvailable = false;
+    p_IsUsingRemoteServer = false;
+
+    lucene = CLuceneHelper::getInstance();
+
+    connect(lucene,SIGNAL(indexContentStarted(int)),this,SLOT(indexContentStarted(int)));
+    connect(lucene,SIGNAL(indexContentFinished()),this,SLOT(indexContentFinished()));
+    connect(lucene,SIGNAL(Error(int,QString,QString)),this,SLOT(LuceneError(int,QString,QString)));
+
+
+    this->DirIndex = "";
+    //this->WikiDb = "wikidb";
+    this->WikiDb = "";
+
+    settings = new QSettings(QSettings::IniFormat,QSettings::UserScope,"UCI","Ecured Portable");
+
+    for (int i = 0; i < MaxRecentFiles; ++i) {
+        recentFileActs[i] = new QAction(this);
+        recentFileActs[i]->setVisible(false);
+        connect(recentFileActs[i], SIGNAL(triggered()),
+                this, SLOT(openRecentFile()));
+    }
+
+    for (int i = 0; i < MaxRecentFiles; ++i){
+        ui->menuFuentes_documentales_recientes->addAction(recentFileActs[i]);
+    }
+
+
+    this->updateRecentFileActions();
+
+    QStringList files = settings->value("recentFileList").toStringList();
+    if(files.length()>0){
+        this->setCurrentFile(files[0]);
+    }
+
+    this->SetCurrentDocSource();
+
+
+    connect(SearchEngine::instance(),SIGNAL(SearchStarted()),SLOT(page_loadStarted()));
+    connect(SearchEngine::instance(),SIGNAL(SearchFinished(int,bool)),SLOT(SearchFinished(int,bool)));
+    connect(SearchEngine::instance(),SIGNAL(OnTextCompletionReady(QList<QPair<QString,int> >,bool,double)),SLOT(slotTextCompletionReady(QList<QPair<QString,int> >,bool,double)));
+    connect(SearchEngine::instance(),SIGNAL(OnSearchByTitleReady(QList<QSqlRecord>,bool,double)),SLOT(slotSearchByTitleReady(QList<QSqlRecord>,bool,double)));
+    connect(SearchEngine::instance(),SIGNAL(OnSearchByTitleReady(QList<QPair<QString,int> >,double)),this,SLOT(slotSearchByTitleReady(QList<QPair<QString,int> >,double)));
+    connect(SearchEngine::instance(),SIGNAL(Error(int,QString,QString)),this,SLOT(LuceneError(int,QString,QString)));
+
+
+
+    movieLoading = new QMovie(this);
+    movieLoading->setScaledSize(QSize(16,16));
+    movieLoading->setFileName(":images/45.gif");
+    movieLoading->start();
+
+
+
+    ui->labelLoading->setMovie(movieLoading);
+    ui->tabWidget->setTabsClosable(true);
+    ui->actionAtras->setEnabled(false);
+    ui->actionAdelante->setEnabled(false);
+
+    ButtonBuscar = new QPushButton("Buscar",this);
+    CheckBoxAllMatch = true;
+
+    EditBuscar= new QLineEdit(this);
+
+    completer = new QCompleter();
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    EditBuscar->setCompleter(completer);
+
+    timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(500);
+    connect(timer, SIGNAL(timeout()), SLOT(triggerTextCompletion()));
+    connect(EditBuscar, SIGNAL(textEdited(QString)), timer, SLOT(start()));
+
+    connect(ButtonBuscar,SIGNAL(clicked()),this,SLOT(ButtonBuscar_clicked()));
+    connect(EditBuscar,SIGNAL(returnPressed()),this,SLOT(ButtonBuscar_clicked()));
+
+    ui->mainToolBar->addWidget(EditBuscar);
+    ui->mainToolBar->addWidget(ButtonBuscar);
+
+
+    ui->tabWidget->installEventFilter(this);
+    ui->menu_Edici_n->installEventFilter(this);
+    ui->menuB_squeda_avanzada->installEventFilter(this);
+
+    findWidget = new FindWidget(this);
+
+    ui->verticalLayout->addWidget(findWidget);
+    findWidget->hide();
+
+    connect(ui->actionBuscar,SIGNAL(triggered()),this,SLOT(showTextSearch()));
+    connect(findWidget, SIGNAL(findNext()), this, SLOT(findNext()));
+    connect(findWidget, SIGNAL(findPrevious()), this, SLOT(findPrevious()));
+    connect(findWidget, SIGNAL(find(QString, bool)), this, SLOT(find(QString, bool)));
+    connect(ui->actionBuscar_Siguiente, SIGNAL(triggered()), this, SLOT(findNext()));
+    connect(ui->actionBuscar_Anterior, SIGNAL(triggered()), this, SLOT(findPrevious()));
+
+    createActions();
+    createTrayIcon();
+    trayIcon->show();
+
+    installEventFilter(this);
+    setMouseTracking(true);
+
+
+
+    progressdialog = new QProgressDialog(this);
+    progressdialog->setLabelText("<b>Creando índice de búsqueda</b>");
+    progressdialog->setWindowModality(Qt::WindowModal);
+    progressdialog->setCancelButton(0);
+    progressdialog->hide();
+
+
+#define Marcadores
+#ifdef Marcadores
+    bookmarksManager = new BookmarksManager(this);
+    m_bookmarksMenu = new BookmarksMenuBarMenu(this);
+    // menubookmark = new BookmarksMenu(this);
+    // connect(menubookmark,SIGNAL(openUrl(Page*)),this,SLOT(BookmarkPageLoad(Page*)));
+    ui->menuMarcadores->addMenu(m_bookmarksMenu);
+    m_bookmarksMenu->setTitle("&Marcadores");
+    m_bookmarksMenu->setBookmarksManager(bookmarksManager);
+    //En la barra de menú
+    //ui->menuBar->addMenu(m_bookmarksMenu);
+#else
+    delete ui->menuMarcadores;
+#endif
+
+
+    //se desactivo los menues de los toolbars
+    QAction * accmainToolBar = ui->mainToolBar->toggleViewAction();
+    accmainToolBar->setCheckable(false);
+    accmainToolBar->setVisible(false);
+
+    QAction * acctoolBarBusqueda = ui->toolBarBusqueda->toggleViewAction();
+    acctoolBarBusqueda->setCheckable(false);
+    acctoolBarBusqueda->setVisible(false);
+
+
+    //restaura las pestañas abiertas
+    /*
+    if(this->IsSourceDocAvailable){
+        QStringList TabList = settings->value("TabList").toStringList();
+        int CantTabs= TabList.size();
+
+        for (int i = 0; i < CantTabs; ++i){
+            CreateTab(TabList.at(i),true);
+        }
+        if(CantTabs==0) CreateTab(BlankPage,true);
+    } else {
+        //setup tabbar
+        CreateTab(BlankPage,true);
+    }
+
+    //setup tabbar
+    CreateTab(BlankPage,true);
+
+    QList<QTabBar *> Lista_widgets = ui->tabWidget->findChildren<QTabBar *>(); //obtenemos todos los QWebView en un QList
+    int cant_widgets = Lista_widgets.count();
+    if(cant_widgets > 0){
+        TabBar = Lista_widgets.at(0);
+        animationLabel(0,true);
+    } else {
+        TabBar = NULL;
+    }
+*/
+    

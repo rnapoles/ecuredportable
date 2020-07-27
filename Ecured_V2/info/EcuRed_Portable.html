@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">  
+  <head>         
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">         
+    <link rel="stylesheet" type="text/css" href="css/plantilla/css.css">	     
+    <link type="text/css" href="css/ui-lightness/jquery-ui.css" rel="stylesheet" />	 		          
+<script type="text/javascript" src="javascript/jquery-latest.js"></script>  	 
+<script type="text/javascript" src="javascript/jquery-ui.js"></script>       
+<script type="text/javascript" src="javascript/app.js"></script>  		 
+<script type="text/javascript">
+			$(function(){
+          // Accordion
+          $("#accordion1").accordion(
+              { 
+              active: false
+              ,autoHeight: false 
+              ,collapsible: true
+              }
+          );
+                  // Accordion
+          $("#accordion2").accordion(
+              { 
+              active: false
+              ,autoHeight: false 
+              ,collapsible: true
+              }
+          );
+				
+          if(!AppConfig.IsSourceDocAvailable()){
+            $("#idOpenDocSource").html("<b>No hay ninguna fuente documental seleccionada, haga click <a id=\"idOpenDocSourceLink\" onclick=\"EcuredMainWindow.on_actionAbrir_fuente_documental_triggered()\" href=\"#\">aqu&iacute;</a>.</b>");
+          }
+          
+          $("#IdVersion").html(QApp.applicationVersion);
+          
+
+          
+				
+  			});
+
+  			
+		</script>  		     
+    <link rel="stylesheet" href="css/common/shared.css" type="text/css" media="screen"/>		     
+    <link rel="stylesheet" href="css/common/commonPrint.css" type="text/css" media="print"/>		     
+    <link rel="stylesheet" href="css/common/Common.css" type="text/css"/>		 		     
+    <link rel="stylesheet" href="css/ecured/ecured.css" type="text/css" media="screen"/>		     
+    <link rel="stylesheet" href="css/ecured/print.css" type="text/css" media="print"/>		     
+    <link rel="stylesheet" href="css/ecured/main.css" type="text/css" media="screen"/>		 		     
+    <style type="text/css">			/*body {font-size:62.5%;}*/ 			 		     
+    </style>         
+    <title>EcuRed:Enciclopedia Cubana     
+    </title>          
+  </head>  
+  <body>         
+    <center>           
+      <div class="contenedor_general">                   
+        <div class="contenedor_cabecera">                          
+          <div class="contenedor_imagen">                       
+            <img src="imagenes/ecured.png"/>                   
+          </div>                          
+          <div class="contenedor_barra">                                   
+            <div class="contenedor_barra_texto">EcuRed: Enciclopedia cubana                       
+            </div>                          
+          </div>                          
+        </div>                  
+        <div class="contenedor_principal">                                           
+          <div class="contenedor_plantilla_general"><br/>
+            <div align="justify" style="text-align: justify; text-justify: newspaper;width:90%;font-size:14px">			
+            <div id="idOpenDocSource" align="right"></div><br/>			        	               
+			La EcuRed Portable es una aplicación de escritorio multiplataforma que permite gestionar toda la información que está contenida dentro de la Enciclopedia Colaborativa Cubana en la red (Ecured por sus siglas) 
+			y ser utilizada por todas las personas que no tengan conexión a las redes cubanas. 
+			Además posibilita realizar un grupo de funcionalidades que son necesarias al trabajar con 
+			dicha enciclopedia, brindando y poniendo al servicio de todos las potencialidades de 
+			tecnologías informáticas.<br />  <br />      	
+			EcuRed Portable puede ser utilizada en cualquier ordenador y 
+			guardarse o ejecutarse directamente desde una memoria USB o CD/DVD y se puede ejecutar tanto
+			en GNU/Linux como en Microsoft Windows &reg;, lo que la hace multiplataforma. 
+			Ha sido desarrollada en el <a href="Centro_de_Desarrollo_Territorial_Holguín" title="Centro de Desarrollo Territorial Holguín">Centro de Desarrollo Territorial Holguín </a>          
+			empleando software libre en su totalidad.<br/><br/>
+             
+			Si desea colaborar, corregir o consultar alg&uacute;n tema relacionado con el contenido de los art&iacute;culos puede escribirnos a <b><a target="_blank" rel="nofollow"  href="mailto:ecured@idict.cu">ecured@idict.cu</a></b>
+			  o llamar al tel&eacute;fono (07) 868 4262. </p>
+			 
+              <br/>  
+			  <h4>¿Qu&eacute; hay de nuevo en esta versi&oacute;n? </h4>		
+              <div style="width:100%;">
+                <div id="accordion2">	
+
+ 				<h3 style="font-size:10px">                    
+                    <a href="#">Fuente documental</a></h3>	                   
+                  <div style="height:80px;font-size:12px;">					
+                    <ul>		
+						
+                      <li>						
+							Nueva ventana para la importaci&oacute;n de fuentes documentales.
+                      </li>					                      
+					  <li>						
+							Importa la fuente documental de wikitaxi. 	 						
+                      </li>					
+                      <li>						
+							Importa la fuente documental desde los dumps de la wikipedia. 	 						
+                      </li>	
+                      <li>						
+							Gracias a la colaboraci&oacute;n de los usuarios se solucionaron algunos <a href="bug">bugs</a> a la hora de importar fuentes documentales. 	 						
+                      </li>	
+                      <li>						
+							Nuevo men&uacute; para abrir la fuente documental desde cualquier localizaci&oacute;n en su disco duro. 	 						
+                      </li>	
+                      <li>						
+							Nuevo men&uacute; para abrir fuentes documentales usadas recientemente. 	 						
+                      </li>	
+                      <li>						
+							Nuevo men&uacute; para abrir fuentes documentales desde EcuredWebServer. 	 						
+                      </li>						  
+                    </ul>                  
+                  </div>	
+				  
+ 				<h3 style="font-size:10px">                    
+                    <a href="#">B&uacute;squeda</a></h3>	                   
+                  <div style="height:80px;font-size:12px;">					
+                    <ul>		
+						
+                      <li>						
+							Ahora usted puede filtrar los resultados de las b&uacute;squedas.
+                      </li>					                      
+				  
+                      <li>						
+							Se soluciono un <a href="bug">bug</a> relacionado con el completamiento de las b&uacute;squedas.
+                      </li>	
+					  
+                    </ul>                  
+                  </div>					  
+				  
+                  <h3 style="font-size:10px">
+                    <a href="#">Gesti&oacute;n de marcadores</a></h3>	
+                  <div style="height:80px;">
+					  <ul>
+						<li>Se incorporaron nuevas maneras de almacenar las b&uacute;squedas
+						   realizadas mediante marcadores desde el men&uacute;
+						   principal.</li>	
+							<li>
+							Se le incorpor&oacute; la opci&oacute;n que nos permite clasificar los marcadores 
+							mediante carpetas facilitando la organizaci&oacute;n de los mismos. 	
+					  </li>					   
+					</ul>
+				</div>
+				
+				
+ 				<h3 style="font-size:10px">                    
+                    <a href="#">Sistema</a></h3>	                   
+                  <div style="height:80px;font-size:12px;">					
+                    <ul>		
+						
+                      <li>						
+							Ahora solo se ejecutara una sola instancia de la aplicaci&oacute;n.
+                      </li>					                      
+				  
+                      <li>						
+							Nueva función automática de control de errores en la aplicaci&oacute;n.	
+                      </li>	
+					  
+                      <li>						
+							En caso de que la aplicaci&oacute;n falle se le brindara la opcion de reiniciarla al usuario.	
+                      </li>	
+					  
+                      <li>						
+							Se optimizo la aplicaci&oacute;n para que iniciara m&aacute;s r&aacute;pido.	
+                      </li>	
+					  
+                    </ul>                  
+                  </div>
+				  
+                <!--  <p>			
+                   De ahora en adelante el sistema brindar&aacute; la posibilidad
+				   de almacenar todos sus enlaces preferidos mediante marcadores a los cuales 
+				   se tendr&aacute; acceso rapidamente sin necesidad de realizar nuevas 
+				   b&uacute;squedas.	 
+                  </p>			-->
+                  	 
+                </div>	 		
+              </div>     			
+              <br/>	
+			  <h4>En la 1.5: </h4>		               
+              <div style="width:100%;">                
+                <div id="accordion1">	                   
+                  <h3 style="font-size:10px">                    
+                    <a href="#">Fuente documental</a></h3>	                   
+                  <div style="height:80px;font-size:12px;">					
+                    <ul>						
+                      <li>						Se comprimi&oacute; la fuente documental para que ocupara menos espacio en disco. 	 						
+                      </li>					
+                    </ul>                  
+                  </div>	 	                   
+                  <h3 style="font-size:10px">                    
+                    <a href="#">Visualizaci&oacute;n del texto</a></h3>	                   
+                  <div style="height:50px;font-size:12px;">				                     
+                    <ul>					                       
+                      <li>Se cambi&oacute; la manera en que se visualizaba el texto.                       
+                      </li>					                       
+                      <li>Existen 2 modos de ampliar el texto.Ahora usted puede aumentar el tamaño del texto empleando el scroll del mouse.                       
+                      </li>					                     
+                    </ul>	                   
+                  </div>	                   
+                  <h3 style="font-size:10px">                    
+                    <a href="#">B&uacute;squeda</a></h3>	                   
+                  <div style="height:50px;font-size:12px;">			Las b&uacute;squedas ofrecen mejores resultados: 		                     
+                    <ul>		                         
+                      <li>Se incorpor&oacute; soporte para b&uacute;squedas avanzadas.                        
+                      </li>				   		                         
+                      <li>Ahora tambi&eacute;n puede realizar b&uacute;squedas empleando consultas.                       
+                      </li>		                         
+                      <li>Se pueden realizar b&uacute;squedas multicampo.                       
+                      </li>		                     
+                    </ul>	                   
+                  </div>	                   
+                  <h3 style="font-size:10px">                    
+                    <a href="#">Exportar</a></h3>	                   
+                  <div style="height:80px;font-size:12px;">			                   	
+                    <ul>					
+                      <li>						Se le incorpor&oacute; la opci&oacute;n de exportar a ODF. 	                   	
+                      </li>
+                  </ul>                  
+                  </div>	                   
+                  <h3 style="font-size:10px">                    
+                    <a href="#">Imprimir</a></h3>	                   
+                  <div style="height:50px;font-size:12px;">			                     
+                    <ul>				                       
+                      <li>						Se brinda la opci&oacute;n de imprimir.                       
+                      </li>				                       
+                      <li>						Se puede obtener una vista previa de lo que se desea imprimir.                       
+                      </li>			 			                     
+                    </ul>	                   
+                  </div>	                  
+                </div>	 		               
+              </div> 			  
+              <br/>          
+            </div> 	
+			
+          <br/> 
+          <br/> 
+          <br/> 
+			</div>    
+            <br/>          
+ 
+				
+          </div> 
+ 
+        </div>        	           
+        <div class="contenedor_pie_pagina">                          
+          <div class="contenedor_pie_pagina_firma">Centro de Desarrollo Territorial Holguín – UCI&nbsp;&nbsp;             
+            <br/>Ecured Portable versi&oacute;n&nbsp;<span id="IdVersion"></span>&nbsp;&nbsp;             
+            <br/>2011-2012&nbsp;&nbsp;             
+            <br/>          
+          </div>               
+        </div>           
+      </div>       
+    </center>      
+  </body>
+</html>

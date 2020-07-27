@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>485</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Ecured Portable</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="recursos.qrc">
+    <normaloff>:/images/Logotipo.ico</normaloff>:/images/Logotipo.ico</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>-1</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="labelLoading">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>15</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="ResultadosPara">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;b&gt;Resultados de la Búsqueda &lt;/b&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>485</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Archivo">
+    <property name="title">
+     <string>&amp;Archivo</string>
+    </property>
+    <widget class="QMenu" name="menuExportar">
+     <property name="title">
+      <string>Exportar</string>
+     </property>
+     <property name="icon">
+      <iconset resource="recursos.qrc">
+       <normaloff>:/images/export-icon.png</normaloff>:/images/export-icon.png</iconset>
+     </property>
+     <addaction name="actionPDF"/>
+     <addaction name="actionExportar_a_ODF"/>
+     <addaction name="actionExportar_a_txt"/>
+    </widget>
+    <widget class="QMenu" name="menuFuentes_documentales_recientes">
+     <property name="title">
+      <string>Fuentes documentales recientes</string>
+     </property>
+     <property name="icon">
+      <iconset resource="recursos.qrc">
+       <normaloff>:/images/Misc-Database-3-icon.png</normaloff>:/images/Misc-Database-3-icon.png</iconset>
+     </property>
+    </widget>
+    <addaction name="actionNewTab"/>
+    <addaction name="actionAbrir_fuente_documental"/>
+    <addaction name="actionAbrir_funete_documental_remota"/>
+    <addaction name="menuExportar"/>
+    <addaction name="actionGuardar"/>
+    <addaction name="actionImportar"/>
+    <addaction name="actionCrear_ndice_de_Busqueda"/>
+    <addaction name="menuFuentes_documentales_recientes"/>
+    <addaction name="separator"/>
+    <addaction name="actionVista_previa_de_impresi_n"/>
+    <addaction name="actionImprimir"/>
+    <addaction name="separator"/>
+    <addaction name="actionSalir"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edici_n">
+    <property name="title">
+     <string>&amp;Edición</string>
+    </property>
+    <addaction name="actionCopiar"/>
+    <addaction name="actionBuscar"/>
+    <addaction name="actionBuscar_Anterior"/>
+    <addaction name="actionBuscar_Siguiente"/>
+   </widget>
+   <widget class="QMenu" name="menu_Vista">
+    <property name="title">
+     <string>&amp;Vista</string>
+    </property>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionNormalZoom"/>
+    <addaction name="actionSolo_ampliar_texto"/>
+    <addaction name="actionPantalla_Completa"/>
+   </widget>
+   <widget class="QMenu" name="menuNavegac_on">
+    <property name="title">
+     <string>&amp;Navegación</string>
+    </property>
+    <addaction name="actionInicio"/>
+    <addaction name="actionAtras"/>
+    <addaction name="actionAdelante"/>
+   </widget>
+   <widget class="QMenu" name="menuA_yuda">
+    <property name="title">
+     <string>A&amp;yuda</string>
+    </property>
+    <addaction name="actionAyuda_de_Ecured"/>
+    <addaction name="actionAcerca_de_Ecured_Portable"/>
+   </widget>
+   <widget class="QMenu" name="menuMarcadores">
+    <property name="title">
+     <string>&amp;Marcadores</string>
+    </property>
+    <addaction name="actionMostrar_todos_loas_macadores"/>
+    <addaction name="actionA_adir_marcador"/>
+    <addaction name="actionGestionar_Marcadores"/>
+    <addaction name="actionA_adir_carpeta_2"/>
+   </widget>
+   <widget class="QMenu" name="menuB_squeda_avanzada">
+    <property name="title">
+     <string>Búsqueda avanzada</string>
+    </property>
+   </widget>
+   <addaction name="menu_Archivo"/>
+   <addaction name="menu_Edici_n"/>
+   <addaction name="menu_Vista"/>
+   <addaction name="menuNavegac_on"/>
+   <addaction name="menuMarcadores"/>
+   <addaction name="menuB_squeda_avanzada"/>
+   <addaction name="menuA_yuda"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPDF"/>
+   <addaction name="actionBuscar"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoomIn"/>
+   <addaction name="actionZoomOut"/>
+   <addaction name="actionNormalZoom"/>
+   <addaction name="separator"/>
+   <addaction name="actionInicio"/>
+   <addaction name="actionAtras"/>
+   <addaction name="actionAdelante"/>
+   <addaction name="separator"/>
+   <addaction name="actionNewTab"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBarBusqueda">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::NoToolBarArea</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOcultarLista"/>
+  </widget>
+  <action name="actionPDF">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/acroread.png</normaloff>:/images/acroread.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exportar a pdf</string>
+   </property>
+   <property name="toolTip">
+    <string>Exportar a pdf</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionBuscar">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/find.png</normaloff>:/images/win/find.png</iconset>
+   </property>
+   <property name="text">
+    <string>Buscar en el contenido activo </string>
+   </property>
+   <property name="toolTip">
+    <string>Buscar en el contenido activo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/zoomin.png</normaloff>:/images/mac/zoomin.png</iconset>
+   </property>
+   <property name="text">
+    <string>Aumentar  texto</string>
+   </property>
+   <property name="toolTip">
+    <string>Aumentar el tamaño del texto</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/zoomout.png</normaloff>:/images/mac/zoomout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Disminuir texto</string>
+   </property>
+   <property name="toolTip">
+    <string>Disminuir el tamaño del texto</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionNormalZoom">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/resetzoom.png</normaloff>:/images/mac/resetzoom.png</iconset>
+   </property>
+   <property name="text">
+    <string>Texto normal</string>
+   </property>
+   <property name="toolTip">
+    <string>Restablecer  el tamaño del texto</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+*</string>
+   </property>
+  </action>
+  <action name="actionInicio">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/home.png</normaloff>:/images/mac/home.png</iconset>
+   </property>
+   <property name="text">
+    <string>Inicio</string>
+   </property>
+   <property name="toolTip">
+    <string>Página Principal</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Home</string>
+   </property>
+  </action>
+  <action name="actionAtras">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/previous.png</normaloff>:/images/mac/previous.png</iconset>
+   </property>
+   <property name="text">
+    <string>Página anterior</string>
+   </property>
+   <property name="toolTip">
+    <string>Ir a la página anterior</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Left</string>
+   </property>
+  </action>
+  <action name="actionAdelante">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/mac/next.png</normaloff>:/images/mac/next.png</iconset>
+   </property>
+   <property name="text">
+    <string>Página siguiente</string>
+   </property>
+   <property name="toolTip">
+    <string>Ir a la página siguiente</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Right</string>
+   </property>
+  </action>
+  <action name="actionNewTab">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/tab-new.png</normaloff>:/images/tab-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Nueva pestaña</string>
+   </property>
+   <property name="toolTip">
+    <string>Nueva pestaña</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionCopiar">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/editcopy.png</normaloff>:/images/editcopy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copiar</string>
+   </property>
+   <property name="toolTip">
+    <string>Copiar el texto selecionado</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionGuardar">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/filesaveas.png</normaloff>:/images/filesaveas.png</iconset>
+   </property>
+   <property name="text">
+    <string>Guardar página como</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionSalir">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Salir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionBuscar_Anterior">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/previous.png</normaloff>:/images/win/previous.png</iconset>
+   </property>
+   <property name="text">
+    <string>Buscar anterior</string>
+   </property>
+   <property name="toolTip">
+    <string>Buscar anterior</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
+   </property>
+  </action>
+  <action name="actionBuscar_Siguiente">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/next.png</normaloff>:/images/win/next.png</iconset>
+   </property>
+   <property name="text">
+    <string>Buscar siguiente</string>
+   </property>
+   <property name="toolTip">
+    <string>Buscar siguiente</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actionAyuda_de_Ecured">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/ayuda.png</normaloff>:/images/ayuda.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ayuda de Ecured Portable</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionAcerca_de_Ecured_Portable">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/Logotipo.png</normaloff>:/images/Logotipo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Acerca de Ecured Portable</string>
+   </property>
+  </action>
+  <action name="actionOcultarLista">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/next.png</normaloff>:/images/win/next.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ocultar Lista</string>
+   </property>
+   <property name="toolTip">
+    <string>Ocultar Lista</string>
+   </property>
+  </action>
+  <action name="actionImportar">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/import.png</normaloff>:/images/import.png</iconset>
+   </property>
+   <property name="text">
+    <string>Importar fuente documental</string>
+   </property>
+   <property name="toolTip">
+    <string>Importar fuente documental</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionCrear_ndice_de_Busqueda">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/turbo.png</normaloff>:/images/turbo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Crear  índice de búsqueda</string>
+   </property>
+   <property name="toolTip">
+    <string>Crea  índice de Busqueda</string>
+   </property>
+  </action>
+  <action name="actionPantalla_Completa">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/full_screen.png</normaloff>:/images/full_screen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pantalla completa</string>
+   </property>
+   <property name="toolTip">
+    <string>Ver en pantalla completa</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionMostrar_todos_loas_macadores">
+   <property name="text">
+    <string>Mostrar todos los marcadores</string>
+   </property>
+   <property name="toolTip">
+    <string>Mostrar todos los marcadores</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+B</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionA_adir_marcador">
+   <property name="text">
+    <string>Añadir marcador</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionImprimir">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/print.png</normaloff>:/images/win/print.png</iconset>
+   </property>
+   <property name="text">
+    <string>Imprimir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionVista_previa_de_impresi_n">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/win/Document-Preview-icon.png</normaloff>:/images/win/Document-Preview-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Vista previa de impresión</string>
+   </property>
+  </action>
+  <action name="actionA_adir_carpeta">
+   <property name="text">
+    <string>Añadir carpeta</string>
+   </property>
+  </action>
+  <action name="actionSolo_ampliar_texto">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Solo ampliar texto</string>
+   </property>
+  </action>
+  <action name="actionExportar_a_ODF">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/Oow.png</normaloff>:/images/Oow.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exportar a odf</string>
+   </property>
+   <property name="toolTip">
+    <string>Exportar a Open Office Document</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionExportar_a_txt">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/Oficina-TXT-icon.png</normaloff>:/images/Oficina-TXT-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exportar a txt</string>
+   </property>
+   <property name="toolTip">
+    <string>Exportar a txt</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionAbrir_fuente_documental">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/New-Database-icon.png</normaloff>:/images/New-Database-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abrir fuente documental</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionGestionar_Marcadores">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/bookmarks-start.png</normaloff>:/images/bookmarks-start.png</iconset>
+   </property>
+   <property name="text">
+    <string>Gestionar marcadores</string>
+   </property>
+  </action>
+  <action name="actionA_adir_carpeta_2">
+   <property name="text">
+    <string>Añadir carpeta</string>
+   </property>
+  </action>
+  <action name="actionAbrir_funete_documental_remota">
+   <property name="icon">
+    <iconset resource="recursos.qrc">
+     <normaloff>:/images/network-server-database-icon.png</normaloff>:/images/network-server-database-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abrir fuente documental remota</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="recursos.qrc"/>
+ </resources>
+ <connections/>
+</ui>

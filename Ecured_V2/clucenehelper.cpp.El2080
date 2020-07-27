@@ -1,0 +1,597 @@
+#include "clucenehelper.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QVariant>
+#include <QProgressDialog>
+#include <QMutex>
+#include <QXmlStreamReader>
+#include <QSqlError>
+#include "mainwindow.h"
+#include "util.h"
+#include <databasemanager.h>
+#include <QFile>
+#include <CLucene/queryParser/MultiFieldQueryParser.h>
+
+
+//CL_NS_USE2(analysis, snowball);
+
+#define IndexContent
+#define IndexContentDebug1
+
+TCHAR* QStringToTChar(const QString &str)
+{
+    TCHAR *string = new TCHAR[(str.length() +1) * sizeof(TCHAR)];
+    memset(string, 0, (str.length() +1) * sizeof(TCHAR));
+    str.toWCharArray(string);
+    return string;
+}
+
+QString TCharToQString(const TCHAR *string)
+{
+    QString retValue = QString::fromWCharArray(string);
+    return retValue;
+}
+
+CLuceneHelper *CLuceneHelper::s_instance = 0;
+
+CLuceneHelper::CLuceneHelper(QObject *parent) :
+    QObject(parent),an(_T("Spanish"))
+{
+    qRegisterMetaType< QList<QPair<QString, int> > >( "QList<QPair<QString, int> >" );
+
+    SearchField = "Título";
+    MultiFieldSearch = false;
+
+}
+
+
+CLuceneHelper::~CLuceneHelper(){
+    _lucene_shutdown();
+}
+
+void CLuceneHelper::indexContent(bool indexContentField){
+    QMutex mutex;
+    mutex.lock();
+    IndexWriter *writer = NULL;
+
+    try {
+
+        writer = _CLNEW IndexWriter(DirIndex.toLatin1().constData(),&an,true);
+        writer->setMaxFieldLength(0x7FFFFFFFL);
+        writer->setUseCompoundFile(false);
+        {
+            QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","info_s");
+            db.setDatabaseName(this->DataBase);
+            if(db.open()){
+
+                int start = 0;
+                int size = 100;
+                int contador = 0;
+
+                int total = -1;
+                DatabaseInfo dbinfo;
+                DatabaseManager dbm(this->DataBase);
+                if(dbm.OpenDB()){
+                    if(dbm.GetDbInfo(dbinfo)){
+                        total = dbinfo.NumArts;
+                    }
+                    dbm.CloseDb();
+                } else {
+                    emit indexContentStarted(0);
+                    emit Error(ErrBd,"No se pudo consultar la fuente documental",dbm.LastErrorStr());
+                    emit indexContentFinished();
+                }
+
+                emit indexContentStarted(total);
+
+
+                //QWebElement *totext = new QWebElement();
+
+                //total = 800;
+                QString strQuery;
+
+
+                while (contador < total ){
+
+                    if(indexContentField == true){
+                        strQuery = QString("SELECT docid,content,old_text FROM  wikitext JOIN searchindex ON old_id=docid LIMIT %1,%2;")
+                                .arg(start).arg(size);
+                    } else {
+                        strQuery = QString("SELECT docid,content FROM searchindex LIMIT %1,%2;")
+                                .arg(start).arg(size);
+                    }
+
+
+                    QSqlQuery query(db);
+
+                    if(!query.exec(strQuery)){
+                        emit indexContentStarted(0);
+                        emit Error(ErrBd,"No se pudo consultar la fuente documental",dbm.LastErrorStr());
+                        emit indexContentFinished();
+                        return;
+                    }
+
+                    while (query.next()) {
+                        Document doc;
+
+
+
+                        QString id = query.value(0).toString();
+                        QString title = query.value(1).toString();
+                        //qDebug() << title;
+
+                        TCHAR *Tcharid =  QStringToTChar(id);
+                        TCHAR *TcharTitle = QStringToTChar(title);
+                        doc.add( *_CLNEW Field(_T("id"), Tcharid, Field::STORE_YES | Field::INDEX_UNTOKENIZED ) );
+                        doc.add( *_CLNEW Field(_T("Título"),TcharTitle, Field::STORE_YES | Field::INDEX_TOKENIZED) );
+
+
+                        //doc.add( *_CLNEW Field(_T("id"), QStringToTChar(id), Field::STORE_YES | Field::INDEX_UNTOKENIZED ) );
+                        //doc.add( *_CLNEW Field(_T("itle"), QStringToTChar(title), Field::STORE_YES | Field::INDEX_TOKENIZED) );
+
+                        //delete id;
+                        //delete title;
+
+
+                        if(indexContentField == true){
+                            QByteArray datos =  query.value(2).toByteArray();
+                            //QString str1;
+                            bool CompressionError=false;
+                            datos = gUncompress(datos,CompressionError);
+                            if(CompressionError==false){
+                                //str1=QString(datos);
+
+#ifdef IndexContentDebug
+                                qDebug()<<datos;
+#endif
+                            } else {
+                                datos =  query.value(2).toByteArray();
+                            }
+
+                            //QString content(datos)    ;
+                            QString content = CleanHtml(QString(datos));
+
+                            //Field* f = _CLNEW Field(_T("Contenido"), QStringToTChar(content), Field::STORE_NO | Field::INDEX_TOKENIZED);
+                            //_CLLDELETE(f);
+                            //doc.add( *_CLNEW Field(_T("Contenido"), QStringToTChar(content), Field::STORE_YES | Field::INDEX_TOKENIZED) );
+                            //delete datos;
+                            //delete content;
+                            TCHAR *TcharContent = QStringToTChar(content);
+                            doc.add( *_CLNEW Field(_T("Contenido"), TcharContent, Field::STORE_NO | Field::INDEX_TOKENIZED) );
+
+                            writer->addDocument(&doc);
+                            doc.clear();
+                            delete [] Tcharid;
+                            delete [] TcharTitle;
+                            delete [] TcharContent;
+
+                        } else {
+
+                            writer->addDocument(&doc);
+                            doc.clear();
+                            delete [] Tcharid;
+                            delete [] TcharTitle;
+
+                        }
+
+                        contador++;
+                    }
+
+                    //                    if(query.lastError().type()!=QSqlError::NoError){
+                    //                        emit Error(ErrBd,"Error en la consulta",db.lastError().text());
+                    //                        emit indexContentFinished();
+                    //                    }
+                    //qDebug() << query.lastError().text();
+                    start += size;
+                    //qDebug()<< "contador "<< contador << " Total " << total << " Start " << start;
+                    //progress.setValue(contador);
+
+                    if(start>contador){
+                        static int c = 0;
+                        if(c==1){
+                            //emit indexContentProgress(total);
+                            contador = total;
+                            emit Error(ErrLucene,"Error desconocido","");
+                            //indexContentFinished();
+                        }
+                        c++;
+                    }
+                    emit indexContentProgress(contador);
+
+                }
+
+                emit indexContentFinished();
+                //qDebug() << "OK";
+
+                writer->setUseCompoundFile(true);
+                writer->optimize();
+            } else {
+                //emit indexContentError();
+                //emit DatabaseError(db.lastError());
+                emit Error(ErrBd,"Error al abrir la base de datos",db.lastError().text());
+                emit indexContentFinished();
+            }
+
+        }
+
+
+    } catch (CLuceneError err) {
+        qDebug() << "Error:"<< err.what();
+        //emit indexContentError();
+        emit Error(ErrLucene,toError(err.number()),QString(err.what()));
+        emit indexContentFinished();
+    }
+    QSqlDatabase::removeDatabase("info_s");
+
+    if(writer!=NULL){
+        writer->close();
+        _CLLDELETE(writer);
+    }
+
+    //_lucene_shutdown();
+    mutex.unlock();
+}
+
+
+
+void CLuceneHelper::Search(const QString &cad,size_t limite){
+
+    QList<QPair<QString, int> > records;
+
+    QString cad1 = cad;
+
+    /*if(doCheckLuceneQueryValue(cad1)){
+        qDebug()<< "La consulta es válida";
+    } else {
+        qDebug()<< "La consulta es inválida";
+    }*/
+
+    if(isAvailable()){;
+        //QHash<QString, int> hash;
+        qDebug()<<"Field names " << getFieldNames();
+        QPair<QString, int> item;
+
+        QMutex mutex;
+        mutex.lock();
+
+        try {
+
+
+            IndexReader * reader = IndexReader::open(DirIndex.toLatin1().constData(),false);
+            IndexSearcher s(reader);
+
+
+            //Query* q = QueryParser::parse(QStringToTChar(cad),_T("Título"),&an);
+            //Query* q = QueryParser::parse(QueryParser::escape(QStringToTChar(cad)),_T("Título"),&an);
+            Query* q;
+            TCHAR *QueryString =  QStringToTChar(cad);
+
+
+
+            /*QString t = cad;
+            int pos=0;
+            while ((pos = rx.indexIn(t,pos)) != -1) {
+               //t = t.replace(rx, "\\\\1");
+               pos += rx.matchedLength();
+               //qDebug() << "capturedTexts " << rx.capturedTexts();
+            }
+
+            qDebug()<<"Query " << t;
+
+            */
+
+            if(!MultiFieldSearch || (this->getFieldNames().count()<2)){
+                //Título|Contenido(:)
+                QRegExp rx1("(Título|Contenido)(:)");
+                TCHAR *TCharSearchField =  QStringToTChar(SearchField);
+
+                //QString s1 = QRegExp::escape("+-&|!(){}[]^\"~*?:\\");
+                //QRegExp rx2("["+s1+"]");
+
+
+                q = QueryParser::parse(QueryString,TCharSearchField,&an);
+
+                //QString str = "the minimum";
+                //qDebug()<< "Regex index" << str.indexOf(QRegExp("^[\*]*$|[\s]\*|^\*[^\s]"));
+
+                if(!cad.contains(rx1)){
+                    //q = QueryParser::parse(QueryParser::escape(QueryString),_T("Título"),&an);
+                    q = QueryParser::parse(QueryParser::escape(QueryString),TCharSearchField,&an);
+                } else {
+                    //qDebug() << "La cadena " << cad << " contiene rx";
+                    q = QueryParser::parse(QueryString,TCharSearchField,&an);
+                }
+
+
+                //if()
+
+
+                SearchField = "Título";
+                qDebug()<<"Simple QueryParser";
+                delete [] TCharSearchField;
+            } else {
+                //MultiFieldQueryParser::Parse(QueryString,fields,2,flags,&an);
+
+                const TCHAR* fields[] = {_T("Título"), _T("Contenido"), NULL };
+                MultiFieldQueryParser mfqp(fields, &an);
+
+                //mfqp.setDefaultOperator(QueryParser::AND_OPERATOR);
+
+                q = mfqp.parse(QueryString);
+
+                MultiFieldSearch = false;
+                //                qDebug() << "Query Multi" << TCharToQString(q->toString());
+                //                qDebug() << "Query cad " << cad;
+                //                qDebug() << "QueryString " << TCharToQString(QueryString);
+            }
+
+            LastQueryString = TCharToQString(q->toString());
+            qDebug() << "Lucene query "<< LastQueryString;
+            qDebug() << "Lucene Query cad " << cad;
+            delete [] QueryString;
+
+
+            clock_t t1,t2;
+            t1 = clock();
+            Hits* h = s.search(q);
+
+            /*
+            TopDocs * topdocs = s._search(q, NULL, 10 );
+
+            qDebug()<<"totalHits:" << topdocs->totalHits;
+            qDebug()<<"scoreDocsLength:" << topdocs->scoreDocsLength;
+
+            int32_t scoreDocsLength = topdocs->scoreDocsLength;
+
+            for(int i=0;i<scoreDocsLength;i++) {
+                  ScoreDoc scoreDoc = topdocs->scoreDocs[i];
+
+                  //float_t score = topdocs->scoreDocs[ i ].score;
+                    int32_t id = topdocs->scoreDocs[ i ].doc;
+                    float_t score = topdocs->scoreDocs[ i ].score;
+
+                    Document doc;
+                    s.doc( id, doc );
+                    qDebug() << "Id: " << int(id) << " Score: " << float(score) << " Title: " << TCharToQString(doc.get(_T("Título"))) ;
+
+                  //Document doc = is.doc(scoreDoc.doc);               //7
+                  //System.out.println(doc.get("filename"));  //8
+            }
+            _CLLDELETE( topdocs );
+            */
+
+            size_t cant_doc =h->length();
+
+            if(limite != 0)
+                if(cant_doc > limite) cant_doc = limite;
+
+            for ( size_t i=0;i<cant_doc;i++ ){
+                Document* doc = &h->doc(i);
+                QString title = TCharToQString(doc->get(_T("Título")));
+                QString id = TCharToQString(doc->get(_T("id")));
+                //qDebug()<< "id " << id << " Title " <<title;
+                //hash.insert(title, id.toInt());
+
+                item.first = title;
+                item.second = id.toInt();
+                records.append(item);
+                //qDebug() << "Score:" << float(h->score(i)) << " Title:" << title;
+                //const TCHAR* buf = doc.get(_T("contents"));
+                //_tprintf(_T("%d. %s - %f\n"), i, doc->get(_T("path")), h->score(i));
+            }
+            t2 = clock();
+            double tiempo = double( t2 - t1 ) / (double)CLOCKS_PER_SEC;
+            qDebug()<< "Tiempo Clucene"<< tiempo;
+
+            _CLLDELETE(h);
+            _CLLDELETE(q);
+
+            s.close();
+            reader->close();
+            _CLLDELETE(reader);
+
+            emit OnSearchFinish(records,tiempo);
+
+        } catch (CLuceneError err) {
+            qDebug() << "Error:"<< err.what();
+            QString StrExcept =  QString(err.what()).toUtf8();
+            emit Error(ErrLucene,toError(err.number()),StrExcept);
+            emit OnSearchFinish(records,0);
+        }
+
+        mutex.unlock();
+    } else {
+        emit Error(ErrLucene,"El índice de búsqueda no es válido","");
+        emit OnSearchFinish(records,0);
+    }
+}
+
+bool CLuceneHelper::isAvailable(){
+
+    bool valid = true;
+
+    if(!QFile::exists(DirIndex)){
+        //qDebug()<<"El directorio "<< DirIndex <<"no existe";
+        //QString ErrStr = QString("El directorio %1 no existe").arg(DirIndex);
+        QString ErrStr = QString("El índice de búsqueda %1 no existe o está dañado").arg(DirIndex);
+        //QMessageBox::information (0,"Error","El índice de búsqueda no existe o está dañado");
+        emit Error(ErrFile,ErrStr,"");
+        return false;
+    }
+
+
+    if(!IndexReader::indexExists(DirIndex.toLatin1().constData())){
+        //qDebug()<<"El indice "<< DirIndex <<"no existe";
+        QString ErrStr = QString("El indice %1 no existe").arg(DirIndex);
+        emit Error(ErrFile,ErrStr,"");
+        return false;
+    }
+
+    return valid;
+}
+
+QString CLuceneHelper::CleanHtml(const QString &cad) const{
+
+
+
+
+    /*QXmlStreamReader xml(cad);
+
+    while (!xml.atEnd()) {
+        if ( xml.readNext() == QXmlStreamReader::Characters ) {
+             textString+= xml.text();
+             textString.append(" ");
+             //qDebug() << xml.text();
+        }
+    }*/
+    QString textString;
+
+    textString = cad;
+
+    return textString.replace(QRegExp("<[^>]*>"),"");
+
+
+}
+
+QString CLuceneHelper::toError(int number) const {
+
+    switch (number) {
+
+    case  CL_ERR_IO :
+        return QString("Error de entrada y salida.                                                                ");
+        break;
+    case  CL_ERR_NullPointer :
+        return QString("Puntero nulo.                                                                             ");
+        break;
+    case  CL_ERR_Runtime :
+        return QString("Error en tiempo de ejecución.                                                             ");
+        break;
+    case  CL_ERR_IllegalArgument :
+        return QString("Argumento iválido.                                                                        ");
+        break;
+    case  CL_ERR_Parse :
+        return QString("Consulta inválida.\nConsulte el manual de ayuda para las diferentes opciones de búsqueda");
+        //return QString("Consulta inválida.                                                                        ");
+        break;
+    case  CL_ERR_TokenMgr :
+        return QString("Error al reservar memoria para el token.                                               ");
+        break;
+    case  CL_ERR_UnsupportedOperation :
+        return QString("Operación no soportada.                                                               ");
+        break;
+    case  CL_ERR_InvalidState :
+        return QString("intenta acceder a un documento eliminado.                                             ");
+        break;
+    case  CL_ERR_IndexOutOfBounds :
+        return QString("El índice de la matriz se encuentra fuera de los límites.                             ");
+        break;
+    case  CL_ERR_TooManyClauses :
+        return QString("Error desconocido.                                                                    ");
+        break;
+    case  CL_ERR_RAMTransaction :
+        return QString("Error de transacción en memoria.                                                      ");
+        break;
+    case  CL_ERR_InvalidCast :
+        return QString("Error de conversión.                                                                  ");
+        break;
+    case  CL_ERR_IllegalState:    // Sub-error: AlreadyClosed
+        return QString("Estado desconocido.                                                                   ");
+        break;
+    case  CL_ERR_UnknownOperator :
+        return QString("Operador desconocido.                                                                 ");
+        break;
+    case  CL_ERR_ConcurrentModification :
+        return QString("No es un número de hit válido.                                                        ");
+        break;
+    case  CL_ERR_CorruptIndex :
+        return QString("El índice está corrupto.                                                              ");
+        break;
+    case  CL_ERR_NumberFormat :
+        return QString("Error al formatear la cadena.                                                         ");
+        break;
+    case  CL_ERR_AlreadyClosed :
+        return QString("El índice esta cerrado.                                                               ");
+        break;
+    case  CL_ERR_StaleReader :
+        return QString("El índice está desactualizado  y ya no es válido para las operaciones de eliminación,\nrecuperación o la normalización.");
+        break;
+    case  CL_ERR_LockObtainFailed :
+        return QString("Índice bloqueado para escritura.                                                       ");
+        break;
+    case  CL_ERR_Merge : //< Exception thrown if there are any problems while executing a merge.
+        return QString("Error de mezcla de segmentos.                                                          ");
+        break;
+    case  CL_ERR_MergeAborted :
+        return QString("Mezcla abortada.                                                                           ");
+        break;
+    case  CL_ERR_OutOfMemory :
+        return QString("Fuera de memoria.                                                                          ");
+        break;
+    case  CL_ERR_FieldReader :
+        return QString("Error al leer campo.                                                                       ");
+        break;
+    default:
+        return QString("Error desconocido.                                                                         ");
+
+    }
+
+}
+
+QStringList CLuceneHelper::getFieldNames() {
+
+    try {
+
+        QStringList FieldNames;
+        StringArrayWithDeletor fn1;
+        IndexReader * reader = IndexReader::open(DirIndex.toLatin1().constData(),false);
+        reader->getFieldNames(IndexReader::INDEXED , fn1);
+        reader->close();
+        _CLLDELETE(reader);
+
+        int fn1count = fn1.size();
+
+        for (int n=0;n<fn1count;n++ ){
+            QString flieldname = TCharToQString(fn1[n]);
+            //qDebug() << TCharToQString(fn1[n]);
+            if(flieldname.compare("id")==0) continue;
+            FieldNames.append(flieldname);
+        }
+
+        fn1.clear();
+
+
+        return FieldNames;
+
+    } catch (CLuceneError err) {
+        emit Error(ErrLucene,toError(err.number()),QString(err.what()));
+    }
+    return QStringList();
+}
+
+QString CLuceneHelper::LastQuery() const{
+    return LastQueryString;
+}
+
+void CLuceneHelper::SetDirIndex(const QString &Dir)
+{
+    DirIndex = Dir + "s_index";
+}
+
+void CLuceneHelper::SetDataBaseName(const QString &DbName)
+{
+    DataBase = DbName;
+}
+
+QString CLuceneHelper::GetDirIndex() const
+{
+    return DirIndex;
+}
+
+QString CLuceneHelper::GetDataBaseName() const
+{
+    return DataBase;
+}
+
+
+
+//numDocs()

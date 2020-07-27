@@ -1,0 +1,8 @@
+qtvars.bat
+qmake sqlite.pro
+make
+make install
+
+cd $QTDIR/src/plugins/sqldrivers/sqlite
+qmake "INCLUDEPATH+=$SQLITE/include" "LIBS+=-L$SQLITE/lib -lsqlite"
+make

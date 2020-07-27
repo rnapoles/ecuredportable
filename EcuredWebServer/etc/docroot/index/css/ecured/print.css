@@ -1,0 +1,66 @@
+#mw_portlets,
+#p-cactions,
+#p-personal,
+#jump-to-nav,
+#footer,
+#barra,
+#p-personal,
+#titulo,
+#left-sidebar,
+span.editsection,
+.noprint
+{
+	display: none;
+}
+#mw_header{
+font:normal 14px/17px Verdana;
+margin:0.3em;}
+#siteSub, #contentSub{
+font-size:1.5em;
+margin:0.2em;
+position:relative;display: block;}
+
+#content a, a.external, a.new, a.stub {
+
+text-decoration:none !important;
+color:#003366 !important;
+font-weight:normal !important;
+
+}
+#content a:link, a:visited {
+background:none repeat scroll 0 0 transparent !important;
+color:#5A3696 !important;
+
+}
+#content #catlinks a{
+	color:#011FFF !important;
+	
+	}
+body {
+	margin:1em;
+	
+	}
+#cuadro{position:relative;margin-top:10px;}
+#c_interno_sup{position:relative;height:8px;}
+#esquina_si{background:url(bordes_azul_claro_r1_c1.png) no-repeat scroll 0 0 transparent; width:8px;height:8px;}
+#borde_s{background:url(borde_recto_sup.png) repeat-x scroll 0 0 transparent;height:8px;margin-left:8px;margin-right:8px;position:relative;top:-8px;}
+#esquina_sd{background:url(bordes_azul_claro_r1_c2.png) no-repeat scroll 0 0 transparent;float:right;height:8px;position:relative;top:-16px;width:8px;}
+#c_interno_med{}
+#borde_li{
+	background-attachment: scroll;
+	background-color: transparent;
+	background-image: url(borde_recto_izq.png);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+#contenido{background-color:#B6DFFA;
+border-color:#83BBD9;
+border-style:none solid;
+border-width:medium 1px;
+position:relative;}
+#borde_ld{}
+#c_interno_inf{position:relative;}
+#esquina_ii{background:url(bordes_azul_claro_r2_c1.png) no-repeat scroll 0 0 transparent; width:8px;height:8px;}
+#borde_i{background:url(borde_recto_inf.png) repeat-x scroll 0 0 transparent; height:8px;margin-left:8px;margin-right:8px;position:relative;top:-8px;}
+#esquina_id{background:url(bordes_azul_claro_r2_c2.png) no-repeat 0 0 transparent; float:right;height:8px;position:relative;top:-16px;
+width:8px;}

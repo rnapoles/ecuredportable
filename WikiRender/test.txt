@@ -1,0 +1,16 @@
+=== Características ===
+
+
+* Orientado al desarrollo de [[Aplicación web|aplicaciones web]] dinámicas con acceso a información almacenada en una [[base de datos]].
+* Es considerado un lenguaje fácil de aprender, ya que en su desarrollo se simplificaron distintas especificaciones, como es el caso de la definición de las variables primitivas, ejemplo que se hace evidente en el uso de [[php arrays]].
+* El código fuente escrito en PHP es invisible al [[navegador web]] y al cliente, ya que es el servidor el que se encarga de ejecutar el código y enviar su resultado HTML al navegador. Esto hace que la programación en PHP sea segura y confiable.
+* Capacidad de conexión con la mayoría de los motores de base de datos que se utilizan en la actualidad, destaca su conectividad con [[MySQL]] y [[PostgreSQL]].
+* Capacidad de expandir su potencial utilizando módulos (llamados ''ext's'' o extensiones).
+* Posee una amplia documentación en su sitio web oficial, entre la cual se destaca que todas las funciones del sistema están explicadas y ejemplificadas en un único archivo de ayuda.
+* Es [[Software libre|libre]], por lo que se presenta como una alternativa de fácil acceso para todos.
+* Permite aplicar técnicas de [[programación orientada a objetos]]. Incluso aplicaciones como Zend framework, empresa que desarrolla PHP, están totalmente desarrolladas mediante esta metodología.
+* No requiere definición de tipos de variables aunque sus variables se pueden evaluar también por el tipo que estén manejando en tiempo de ejecución.
+* Tiene manejo de excepciones (desde PHP5).
+* Si bien PHP no obliga a quien lo usa a seguir una determinada metodología a la hora de programar, aún haciéndolo, el programador puede aplicar en su trabajo cualquier técnica de programación o de desarrollo que le permita escribir código ordenado, estructurado y manejable. Un ejemplo de esto son los desarrollos que en PHP se han hecho del [[patrón de diseño]] [[Modelo Vista Controlador]] (MVC), que permiten separar el tratamiento y acceso a los datos, la [[lógica de control]] y la [[interfaz de usuario]] en tres componentes independientes.
+
+=== Inconvenientes ===

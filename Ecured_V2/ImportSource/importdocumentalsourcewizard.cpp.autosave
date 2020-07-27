@@ -1,0 +1,450 @@
+#include "importdocumentalsourcewizard.h"
+#include <QVBoxLayout>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QDir>
+#include <QTime>
+#include <QMouseEvent>
+#include <databasemanager.h>
+#include <ImportSource/wikidbimporter.h>
+#include <ImportSource/xmlbz2importer.h>
+#include <ImportSource/wikitaxiimporter.h>
+#include <QCoreApplication>
+
+
+
+ImportDocumentalSourceWizard::ImportDocumentalSourceWizard(QWidget *parent) :
+    QWizard(parent)
+{
+    setPage(Page_SelectDocSource, new DocSourceWizardPage(this));
+    setPage(Page_Config, new ConfigWizardPage(this));
+    setPage(Page_Progress, new ProgressWizardPage(this));
+    setPage(Page_Conclusion, new ConclusionWizardPage(this));
+    setStartId(Page_SelectDocSource);
+    setAttribute(Qt::WA_DeleteOnClose);
+    setPixmap(QWizard::LogoPixmap, QPixmap(":/images/wizard/logo.png"));
+    QList<QWizard::WizardButton> layout;
+   // layout << QWizard::Stretch << QWizard::NextButton << QWizard::FinishButton;
+    layout << QWizard::Stretch <<QWizard::BackButton <<QWizard::NextButton <<QWizard::FinishButton;
+    setButtonLayout(layout);
+    setButtonText(QWizard::NextButton,"Siguiente >");
+    setButtonText(QWizard::BackButton,"< Anterior");
+    setButtonText(QWizard::FinishButton,"Finalizar");
+    setWindowTitle("Importar fuente documental");
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
+
+ImportDocumentalSourceWizard::~ImportDocumentalSourceWizard()
+{
+    QDir d;
+    QString LineEditProjDir = field("Import.LineEditProjDir").toString()+ d.separator() + "wiki.db";
+
+    bool ok = false ;
+
+    if(hasVisitedPage(3)){
+        ok = !field("Import.Err").toBool();
+    }
+
+    emit OnTerminate(ok,field("Import.LineEditProjDir").toString()+d.separator(),LineEditProjDir);
+
+}
+
+/*ConfigWizardPage*/
+ConfigWizardPage::ConfigWizardPage(QWidget *parent)
+    : QWizardPage(parent)
+{
+    setTitle("Introducción");
+    setSubTitle("  ");
+
+    topLabel = new QLabel("Este asistente le guiará durante el proceso de importación."
+                          " Este proceso puede demorar varios minutos, por lo que es recomendable hacerlo"
+                          " en equipos con buenas prestaciones. Una vez iniciado este proceso no debe ser detenido"
+                          ", pues provocaría que la aplicación dejase de funcionar."
+                          );
+
+    topLabel->setWordWrap(true);
+
+    LineEditDocSource = new QLineEdit(this);
+    LineEditDocSource->installEventFilter(this);
+    LineEditProjDir = new QLineEdit(this);
+    LineEditProjDir->installEventFilter(this);
+    LabelDocSource = new QLabel("Fuente documental:",this);
+    LabelProjDir = new QLabel("Directorio donde se guardará el proyecto:",this);
+
+    registerField("Import.DocSource*", LineEditDocSource);
+    registerField("Import.LineEditProjDir*", LineEditProjDir);
+
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(topLabel,0,0);
+    layout->addWidget(LabelDocSource, 1, 0);
+    layout->addWidget(LineEditDocSource, 2, 0);
+    layout->addWidget(LabelProjDir, 3, 0);
+    layout->addWidget(LineEditProjDir, 4, 0);
+    setLayout(layout);
+}
+
+int ConfigWizardPage::nextId() const
+{
+    return ImportDocumentalSourceWizard::Page_Progress;
+}
+
+bool ConfigWizardPage::validatePage(){
+
+    QString StrDocSource(field("Import.DocSource").toString());
+    QString StrLineEditProjDir(field("Import.LineEditProjDir").toString());
+    QMessageBox msg;
+
+    if(!QFile::exists(StrDocSource)){
+        msg.setText("La fuente documental selecionada no es válida.");
+        msg.exec();
+        return false;
+    } else {
+        QFileInfo FileInfo(StrDocSource);
+        if(!FileInfo.isReadable()){
+            msg.setText("La fuente documental selecionada no se puede leer.");
+            msg.exec();
+            return false;
+        }
+    }
+
+    bool IsWikiDb = field("Import.WikiDb").toBool();
+    bool IsXmlBz2 = field("Import.XmlBz2").toBool();
+
+    if(!QFile::exists(StrLineEditProjDir)){
+        QDir OutputDir;
+        if(!OutputDir.mkpath(StrLineEditProjDir)){
+            msg.setText("No se pudo crear el directorio del proyecto.");
+            msg.exec();
+            return false;
+        }
+    }
+
+    DatabaseManager dbm(StrDocSource);
+
+    if(IsWikiDb){
+        if(!dbm.IsSqliteDb()){
+            msg.setText("La fuente documental selecionada no es válida.");
+            msg.exec();
+            return false;
+        }
+    } else if(IsXmlBz2){
+        QFile Validateheader(StrDocSource);
+        if (Validateheader.open(QIODevice::ReadOnly)) {
+            QByteArray DbHeaderf = Validateheader.read(3);
+            QByteArray DbHeader("BZh");
+            if(!(DbHeaderf == DbHeader)){
+                msg.setText("La fuente documental selecionada no es válida.");
+                msg.exec();
+                return false;
+            }
+        }
+    } else {
+        if(!dbm.IsWikiTaxiDb()){
+            msg.setText("La fuente documental selecionada no es válida.");
+            msg.exec();
+            return false;
+        }
+    }
+
+    QFileInfo FileInfo(StrLineEditProjDir);
+    if(!FileInfo.isDir()){
+        msg.setText("El directorio del proyecto no es válido.");
+        msg.exec();
+        return false;
+    }
+
+    if(!FileInfo.isWritable()){
+        msg.setText("El directorio del proyecto no tiene permisos de escritura.");
+        msg.exec();
+        return false;
+    }
+    return true;
+}
+
+
+void ConfigWizardPage::on_LineEditDocSource_clicked(){
+
+    bool IsWikiDb = field("Import.WikiDb").toBool();
+    bool IsXmlBz2 = field("Import.XmlBz2").toBool();
+
+    QString ext;
+    if(IsWikiDb){
+#ifdef linux
+        ext = "*";
+#else
+        ext = "*.*";
+#endif
+    } else if(IsXmlBz2) {
+        ext = "*.xml.bz2";
+    } else {
+        ext = "*.taxi";
+    }
+
+    QString dir = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation)+ '/' ;
+    QString fileName = QFileDialog::getOpenFileName(this,"Abrir",dir,ext);
+
+    if(!fileName.isEmpty()) this->LineEditDocSource->setText(fileName);
+}
+
+void ConfigWizardPage::on_LineEditProjDir_clicked(){
+
+    QString dir = QDesktopServices::storageLocation(QDesktopServices::DesktopLocation);
+
+#ifdef linux
+    //QString fileName = QFileDialog::getSaveFileName(this,"Guardar",dir,"*");
+    QString fileName = QFileDialog::getExistingDirectory(this,"Guardar",dir,QFileDialog::ShowDirsOnly);
+#else
+    //QString fileName = QFileDialog::getSaveFileName(this,"Guardar",dir,"*.*");
+    QString fileName = QFileDialog::getExistingDirectory(this,"Guardar",dir,QFileDialog::ShowDirsOnly);
+#endif
+
+    if(!fileName.isEmpty()) this->LineEditProjDir->setText(fileName);
+}
+
+bool ConfigWizardPage::eventFilter(QObject *obj, QEvent *event){
+
+    if (obj == this->LineEditDocSource) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            on_LineEditDocSource_clicked();
+        }
+    }
+
+    if (obj == this->LineEditProjDir) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            on_LineEditProjDir_clicked();
+        }
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+
+/*DocSourceWizardPage*/
+DocSourceWizardPage::DocSourceWizardPage(QWidget *parent)
+    : QWizardPage(parent)
+{
+    setTitle("Seleccionar tipo fuente documental a importar.");
+    setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/wizard/watermark.png"));
+    WikiDbRadioButton = new QRadioButton("Importar wikidb");
+    XmlBz2RadioButton = new QRadioButton("Importar xml.bz2");
+    WikiTaxiRadioButton = new QRadioButton("Importar .taxi");
+
+    registerField("Import.WikiDb", WikiDbRadioButton);
+    registerField("Import.XmlBz2", XmlBz2RadioButton);
+    registerField("Import.WikiTaxi",WikiTaxiRadioButton);
+    WikiDbRadioButton->setChecked(true);
+
+    QGridLayout  *layout = new QGridLayout;    
+    layout->addWidget(WikiDbRadioButton,1,0);
+    layout->addWidget(XmlBz2RadioButton,2,0);
+    layout->addWidget(WikiTaxiRadioButton,3,0);
+    setLayout(layout);
+}
+
+int DocSourceWizardPage::nextId() const
+{
+    return ImportDocumentalSourceWizard::Page_Config;
+}
+
+
+/*ProgressPage*/
+ProgressWizardPage::ProgressWizardPage(QWidget *parent)
+    : QWizardPage(parent)
+{
+    setTitle("Procesando fuente documental");
+    setSubTitle("Iniciando ");
+
+    topLabel = new QLabel(" ");
+    topLabel->setWordWrap(true);
+    topLabel->setMinimumWidth(200);
+    ProgressBar = new QProgressBar(this);
+    ProgressBar->setMinimum(0);
+    ProgressBar->setValue(0);
+    ProgressBar->setAlignment(Qt::AlignCenter);
+    //connect(ProgressBar,SIGNAL(valueChanged(int)),this,SLOT(valueChanged(int)));
+
+
+    QRadioButton *HideRadio = new QRadioButton(this);
+    HideRadio->setChecked(false);
+    HideRadio->hide();
+    registerField("Import.Err", HideRadio);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(topLabel,0,0);
+    layout->addWidget(ProgressBar,1,0);
+    setLayout(layout);
+
+    connect(&m_futureWatcher, SIGNAL(progressRangeChanged(int, int)),ProgressBar,SLOT(setRange(int,int)));
+    connect(&m_futureWatcher, SIGNAL(progressValueChanged(int)),ProgressBar,SLOT(setValue(int)));
+    connect(&m_futureWatcher,SIGNAL(progressValueChanged(int)),this,SLOT(valueChanged(int)));
+
+}
+
+void ProgressWizardPage::initializePage()
+{
+
+    bool IsWikiDb = field("Import.WikiDb").toBool();
+    bool IsXmlBz2 = field("Import.XmlBz2").toBool();
+    QDir d;
+    QString DocSource = field("Import.DocSource").toString() ;
+    QString LineEditProjDir = field("Import.LineEditProjDir").toString()+ d.separator() + "wiki.db";
+
+    if(IsWikiDb){
+
+        WikiDbImporter *OWikiDbImporter = new WikiDbImporter(this) ;
+        OWikiDbImporter->SetSource(DocSource);
+        OWikiDbImporter->SetDestination(LineEditProjDir);
+        //connect(OWikiDbImporter,SIGNAL(FileSize(int)),ProgressBar,SLOT(setMaximum(int)));
+        //connect(OWikiDbImporter,SIGNAL(ReportProgress(int)),ProgressBar,SLOT(setValue(int)));
+        connect(OWikiDbImporter,SIGNAL(Finish()),this,SLOT(Finished()));
+        connect(OWikiDbImporter,SIGNAL(Error(QString)),this,SLOT(Error(QString)));
+        QFuture <void> f = QtConcurrent::run(OWikiDbImporter,&WikiDbImporter::copy);
+        m_futureWatcher.setFuture(f);
+
+    } else if(IsXmlBz2) {
+
+        XmlBz2Importer *OXmlBz2Importer = new XmlBz2Importer(this);
+        OXmlBz2Importer->SetSource(DocSource);
+        OXmlBz2Importer->SetDestination(LineEditProjDir);
+        //ProgressBar->setMaximum(100);
+        //connect(OXmlBz2Importer,SIGNAL(ReportProgress(int)),ProgressBar,SLOT(setValue(int)));
+        //connect(OXmlBz2Importer,SIGNAL(ReportMsg(QString)),this,SLOT(ReportMsg(QString)));
+        connect(OXmlBz2Importer,SIGNAL(Finish()),this,SLOT(Finished()));
+        connect(OXmlBz2Importer,SIGNAL(Error(QString)),this,SLOT(Error(QString)));
+        QFuture <void> f = QtConcurrent::run(OXmlBz2Importer,&XmlBz2Importer::copy);
+        m_futureWatcher.setFuture(f);
+
+    } else {
+        WikiTaxiImporter *OWikiTaxiImporter = new WikiTaxiImporter(this);
+        OWikiTaxiImporter->SetSource(DocSource);
+        OWikiTaxiImporter->SetDestination(LineEditProjDir);
+        //connect(OWikiTaxiImporter,SIGNAL(FileSize(int)),ProgressBar,SLOT(setMaximum(int)));
+        //connect(OWikiTaxiImporter,SIGNAL(ReportProgress(int)),ProgressBar,SLOT(setValue(int)));
+        connect(OWikiTaxiImporter,SIGNAL(Finish()),this,SLOT(Finished()));
+
+
+        connect(OWikiTaxiImporter,SIGNAL(Error(int,QString,QString)),this,SLOT(Error(int,QString,QString)));
+        QFuture <void> f = QtConcurrent::run(OWikiTaxiImporter,&WikiTaxiImporter::copy);
+        m_futureWatcher.setFuture(f);
+
+    }
+
+
+}
+
+int ProgressWizardPage::nextId() const
+{
+    return ImportDocumentalSourceWizard::Page_Conclusion;
+}
+
+bool ProgressWizardPage::validatePage()
+{
+    return m_futureWatcher.isFinished();
+}
+
+void ProgressWizardPage::Progress(int progress)
+{
+    ProgressBar->setValue(progress);
+}
+
+void ProgressWizardPage::ReportMsg(const QString &Msg)
+{
+    static int counter = 0;
+    if(counter==100){
+        counter=0;
+    } else {
+        counter++;
+    }
+
+    //ProgressBar->setValue(counter);
+
+//    try {
+//        QCoreApplication::processEvents();
+//    } catch (...) {
+
+//    }
+
+}
+
+void ProgressWizardPage::valueChanged(int value)
+{
+
+    wizard()->button(QWizard::NextButton)->setEnabled(false);
+    wizard()->button(QWizard::BackButton)->setEnabled(false);
+    static int counter;
+
+    if(counter == 0){
+        setSubTitle("Procesando .");
+    } else if (counter == 1)  {
+        setSubTitle("Procesando ..");
+    } else if (counter == 2)  {
+        setSubTitle("Procesando ...");
+    } else if (counter == 3)  {
+        setSubTitle("Procesando ....");
+    } else if (counter == 4)  {
+        setSubTitle("Procesando .....");
+        counter = 0;
+    }
+    //QCoreApplication::processEvents();
+    counter++;
+}
+
+void ProgressWizardPage::Init()
+{
+    wizard()->button(QWizard::NextButton)->setEnabled(false);
+}
+
+void ProgressWizardPage::Finished()
+{
+    ProgressBar->setMaximum(100);
+    ProgressBar->setValue(100);
+    setSubTitle("Finalizado ...");
+    wizard()->button(QWizard::NextButton)->setEnabled(true);
+    wizard()->button(QWizard::BackButton)->setEnabled(true);
+}
+
+void ProgressWizardPage::Error(const QString &Msg)
+{
+    QMessageBox::critical(this,"Error",Msg);
+    setField("Import.Err",true);
+}
+
+void ProgressWizardPage::Error(const int ErrType,const QString &Msg,const QString &OrgMsg)
+{
+    setField("Import.Err",true);
+    Q_UNUSED(ErrType);
+    QMessageBox msgbox;
+    msgbox.setText(Msg);
+    msgbox.setDetailedText(OrgMsg);
+    msgbox.setIcon(QMessageBox::Critical);
+    msgbox.exec();
+}
+
+
+
+/*ConclusionPage*/
+ConclusionWizardPage::ConclusionWizardPage(QWidget *parent)
+    : QWizardPage(parent)
+{
+    setSubTitle("Finalizar  ");
+    bottomLabel = new QLabel;
+    bottomLabel->setWordWrap(true);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(bottomLabel);
+}
+
+void ConclusionWizardPage::initializePage()
+{
+    bool Err = field("Import.Err").toBool();
+    if(Err){
+        bottomLabel->setText("El proceso no culmino satisfactoriamente.");
+    } else {
+        bottomLabel->setText("El proceso ha concluido satisfactoriamente.");
+    }
+}
+
+int ConclusionWizardPage::nextId() const
+{
+    return -1;
+}
+

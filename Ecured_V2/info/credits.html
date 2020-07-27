@@ -1,0 +1,111 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Acerca de</title>
+ 
+<script language="javascript">
+var titlea = new Array();
+var texta = new Array();
+
+titlea[0] = "";
+texta[0] = "";
+
+titlea[1] = "<center>Cr&eacute;ditos</center>";
+texta[1] = "";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Cruz Mulet, Henry (<A HREF='mailto:hcruz@hlg.uci.cu'>hcruz@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Hereaux Limonta, Alejandro (<A HREF='mailto:alejandrohl@hlg.uci.cu'>alejandrohl@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Nápoles Martínez, Reinier (<A HREF='mailto:rnapoles@hlg.uci.cu'>rnapoles@hlg.uci.cu</A>)<br>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Oviedo Verdecia, Elsia María (<A HREF='mailto:elsia@hlg.uci.cu'>elsia@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Pérez Rubio, Yadira (<A HREF='mailto:yrubio@hlg.uci.cu'>yrubio@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Reve Cruzata, Yadira (<A HREF='mailto:ycruzata@hlg.uci.cu'>ycruzata@hlg.uci.cu</A>)<br/> ";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Rodríguez Cano, Julio Cesar (<A HREF='mailto:jcrcano@hlg.uci.cu'>jcrcano@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Rodriguez Carralero, Wilfredo (<A HREF='mailto:wilfre@hlg.uci.cu'>wilfre@hlg.uci.cu</A>) <br> ";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Rodríguez Tamayo, Yosber (<A HREF='mailto:yosber@hlg.uci.cu'>yosber@hlg.uci.cu</A>) <br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Ruiz Pe&ntilde;a, Rosendo (<A HREF='mailto:rosendo@hlg.uci.cu'>rosendo@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Turruelles Tejeda, Yosvani (<A HREF='mailto:yturrueyes@hlg.uci.cu'>yturrueyes@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Ibargollin Gavil&aacute;n, Freddy (<A HREF='mailto:freddy@hlg.uci.cu'>freddy@hlg.uci.cu</A>)<br/>";
+texta[1] += "&nbsp;&nbsp;&nbsp;&nbsp;Hern&aacute;ndez Cruz, Jorge (<A HREF='mailto:jcruz@hlg.uci.cu'>jcruz@hlg.uci.cu</A>)<br/>";
+
+    
+titlea[2] = "";
+texta[2] = "";
+
+titlea[3] = "";
+texta[3] = "";
+
+titlea[4] = "";
+texta[4] = "";
+
+
+var mc=5;
+var inoout=false;
+var spage;
+
+divtextb ="<div id=d"
+dive1=" onmouseover=\"scroll()\" onmouseout =\"stop()\" ";
+divtexts = " style=\"position:absolute; visibility:hidden; width 350px; font-family: verdana,arial,helvetica; top:0; font-size: 0.8em; margin:0px; line-height: 12pt; text-align:left;padding:0px;\">";
+ns6span= " style=\"position:relative; width:350px; font-family: verdana,arial,helvetica; font-size: 1em; font-weight: bold; line-height: 14pt; text-align:left;padding:0px;\"";
+
+var uzunobj=null;
+var uzuntop=0;
+var toplay=0;
+
+function scroll(gnum) {
+	inoout=true;
+}
+
+function stop() {
+	inoout=false;
+}
+
+function dotrans() {
+	if(inoout==false) {
+		dahayok=false;
+		uzuntop--;
+		for(i=0;i<mc;i++) {
+			objd=document.getElementById('d'+i);
+			objd.style.top=""+(uzuntop+(i*50))+"px";
+		}
+
+		if(uzuntop<(-1*(mc)*50)) {
+			uzuntop=100;
+		}
+	}
+
+	setTimeout('dotrans()',35);
+}
+
+function init2() {
+	toplay=4;
+	for(i=0;i<mc;i++) {
+		objd=document.getElementById('d'+i);
+		objd.style.visibility="visible";
+		objd.style.top=""+(toplay+(50*i))+"px";
+		objd.style.left=""+8+"px";
+	}
+
+	uzuntop=100;
+	dotrans();
+}
+
+function init() {
+	i=0;
+	innertxt="";
+
+	for(i=0;i<mc;i++) {
+		innertxt=innertxt+""+divtextb+""+i+""+dive1+""+divtexts+"<div id=\"hgd"+i+"\""+ns6span+">"+titlea[i]+"<br></div>"+texta[i]+"</div>";
+	}
+
+	spage=document.getElementById('zone');
+	spage.innerHTML=innertxt;
+
+	setTimeout('init2()',400);
+}
+window.onload=init;
+</script>
+ 
+</head>
+<body style="overflow: hidden; background: none repeat scroll 0pt 0pt rgb(212, 208, 200); font-size: 13px;">
+<div id="zone"></div>
+</body>
+</html>

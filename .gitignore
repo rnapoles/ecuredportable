@@ -1,0 +1,5 @@
+*.db
+/Docs
+*.user
+*.1pre1
+*.3pre1

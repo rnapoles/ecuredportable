@@ -1,0 +1,8 @@
+﻿
+Indexar (o Indizar) se refiere a la acción de registrar ordenadamente información para elaborar su índice.En informática, tiene como propósito ejecutar la elaboración de un índice que contenga de forma ordenada la información, esto con la finalidad de obtener resultados de forma sustancialmente más rápida y relevante al momento de realizar una búsqueda. 
+Es por ello que la indexación es un elemento fundamental de elementos como los motores de búsqueda y las bases de datos.
+
+
+En el caso del estudio de google o yahoo!, especializados en encontrar información en la web, estos realizan una exploración permanente de la internet, creando un índice de todas las páginas exploradas, así como de su contenido. De esta forma, cuando se realiza una consulta, el motor de búsqueda se dirige al índice para localizar los elementos deseados, arrojando así resultados precisos y rápidos. Sin un índice, el motor de búsqueda debería escanear el contenido de cada página web de forma individual cada vez que se iniciara una búsqueda,lo cual, considerando el volumen de la información existente en internet, seria excesivamente lento y demandaría equipos informáticos muy potentes.
+
+

@@ -1,0 +1,18 @@
+﻿Un motor de búsqueda, también conocido como buscador, es un sistema informático 
+que busca archivos almacenados en servidores web gracias a su (spider o Web crawler).
+Un ejemplo son los buscadores de Internet (algunos buscan únicamente en la web,
+pero otros lo hacen además en noticias, servicios como Gopher, FTP, etc.) 
+cuando se pide  información sobre algún tema. Las búsquedas se hacen con palabras 
+clave o con árboles jerárquicos por temas; el resultado de la búsqueda es 
+un listado de direcciones web en los que se mencionan temas relacionados con las palabras
+clave buscadas.
+
+Como operan en forma automática, los motores de búsqueda contienen generalmente más 
+información que los directorios. Sin embargo, estos últimos también han de construirse
+a partir de búsquedas (no automatizadas) o bien a partir de avisos dados por los 
+creadores de páginas (lo cual puede ser muy limitante). 
+Los buenos directorios combinan ambos sistemas. Hoy en día Internet se ha convertido en 
+una herramienta, para la búsqueda de información rápida, para ello han surgido los buscadores
+que son motores de búsqueda que nos facilitan encontrar información rápida de cualquier
+tema de interés, en cualquier área de las ciencias y de cualquier parte del mundo.
+

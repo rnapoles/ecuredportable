@@ -1,0 +1,76 @@
+#ifndef DATABASEMANAGER_H
+#define DATABASEMANAGER_H
+
+#include <QObject>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QStringList>
+
+class DatabaseInfo {
+public:
+    explicit DatabaseInfo(){
+        wikicode=false;
+        compressed=false;
+        NumArts=0;
+        NumFields=0;
+        IsTableAvailable=false;
+    }
+
+    QString fecha;
+    bool wikicode;
+    bool compressed;
+    quint64 NumArts;
+    qint32 NumFields;
+    bool IsTableAvailable;
+};
+
+class DatabaseManager : public QObject
+{
+    Q_OBJECT
+public:
+    explicit DatabaseManager(const QString &dbname,QObject *parent = 0);
+
+    bool OpenDB();
+    void CloseDb();
+    bool DeleteDB(bool ReportErr=true);
+    bool CreateDb();
+    bool IsSqliteDb();
+    bool SetWikitaxiHeader();
+    bool GetDbInfo(DatabaseInfo &dbinfo);
+    bool SetDbInfo(bool wikicode=false,bool compressed=false,quint64 NumArts=0);
+
+
+    QSqlError LastErrorSql();
+
+    QString LastErrorStr();
+
+    bool Insert(QString title, QString text);
+    bool Insert(QString title, QByteArray text);
+
+    bool IsOpen();
+
+    bool IsWikiTaxiDb();
+
+    QStringList getTables();
+
+    bool isDbInfoAvailable(){
+        return DbInfoAvailable;
+    }
+
+private:
+    QSqlDatabase db;
+    bool wikitaxi;
+    bool DbInfoAvailable;
+    QString fecha;
+    QString ErrorStr;
+    QString dbname;
+
+signals:
+    void Error(const int ErrType,const QString &Msg,const QString &OrgMsg);
+    
+public slots:
+    
+};
+
+#endif // DATABASEMANAGER_H

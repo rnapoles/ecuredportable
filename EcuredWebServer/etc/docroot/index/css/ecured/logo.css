@@ -1,0 +1,47 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+#logo_top_left {
+	background-image: url(logo_top_left.gif);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	background-position:0px 0px;
+	height:62px;
+	width:53px;
+	top:0;
+	left:0;
+}
+#logo_top_right {
+	background-image: url(logo_top_right.gif);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	background-position:0px 0px;
+	height:62px;
+	width:53px;
+	position:relative;
+	top:-62px;
+	left:53px;
+}
+#logo_bot_left {
+	background-image: url(logo_bot_left.gif);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	background-position:0px 0px;
+	height:62px;
+	width:53px;
+	position:relative;
+	top:-62px;
+	left:0px;
+}
+#logo_bot_right {
+	background-image: url(logo_bot_right.gif);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	background-position:0px 0px;
+	height:62px;
+	width:53px;
+	position:relative;
+	top:-124px;
+	left:53px;
+}
