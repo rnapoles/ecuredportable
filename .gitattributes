@@ -1,11 +1,8 @@
-# Sources
-*.c     text diff=cpp
-*.cc    text diff=cpp
-*.cxx   text diff=cpp
-*.cpp   text diff=cpp
-*.cpi   text diff=cpp
-*.c++   text diff=cpp
-*.hpp   text diff=cpp
-*.h     text diff=cpp
-*.h++   text diff=cpp
-*.hh    text diff=cpp
+# Force .h files to be recognized as C++ (by default, Linguist treats .h as C)
+*.h linguist-language=C++
+
+# Ensure standard C++ extensions are tracked properly
+*.cpp linguist-language=C++
+*.cc linguist-language=C++
+*.cxx linguist-language=C++
+*.hpp linguist-language=C++
